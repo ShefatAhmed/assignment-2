@@ -1,17 +1,23 @@
 import { Request, Response } from 'express'
 import { UserServices } from './user.services'
+import userValidationSchema from './user.validation'
 
 const createUser = async (req: Request, res: Response) => {
   try {
     const { user: userData } = req.body
-    const data = await UserServices.createUserIntoDB(userData)
+    const zodparseData = userValidationSchema.parse(userData)
+    const data = await UserServices.createUserIntoDB(zodparseData)
     res.status(200).json({
       success: true,
       message: 'Users fetched successfully!',
       data: data,
     })
   } catch (err) {
-    console.log(err)
+    res.status(500).json({
+      success: false,
+      message: 'Users fetched failed!',
+      error: err,
+    })
   }
 }
 
@@ -64,5 +70,5 @@ export const UserController = {
   createUser,
   getAllUsers,
   getSingleUser,
-  updateUser
+  updateUser,
 }

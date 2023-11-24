@@ -7,7 +7,7 @@ app.use(express.json())
 app.use(cors())
 
 // application routes
-app.use('/api/users', UserRoute);
+app.use('/', UserRoute)
 
 const getAController = (req: Request, res: Response) => {
   const a = 0
@@ -16,5 +16,4 @@ const getAController = (req: Request, res: Response) => {
 
 app.get('/', getAController)
 
-
-export default app;
+export default app
