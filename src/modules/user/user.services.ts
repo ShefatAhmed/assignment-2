@@ -1,22 +1,26 @@
-import { User } from './user.interface'
-import { UserModel } from '../user.model'
+import { TUser } from './user.interface'
+import { User } from '../user.model'
 
-const createUserIntoDB = async (user: User) => {
-  const result = await UserModel.create(user)
-  return result
+const createUserIntoDB = async (userData: TUser) => {
+  if(await User.isUserExists(userData.userId)){
+    throw new Error('User already exists!');
+  }
+  const data = await User.create(userData);
+  return data
 }
 const getAllUserFromDB = async () => {
-  const data = await UserModel.find()
+  const data = await User.find()
   return data
 }
 const getSingleUserFromDB = async (userId: string) => {
-  const data = await UserModel.findOne({ userId })
+  const data = await User.findOne({ userId })
   return data
 }
-const updateSingleUserInDB = async (userId: string, updatedUser: User) => {
-  const result = await UserModel.updateOne({ userId }, updatedUser)
-  return result
+const updateSingleUserInDB = async (userId: string, updatedUser: TUser) => {
+  const data = await User.updateOne({ userId }, updatedUser)
+  return data
 }
+
 
 export const UserServices = {
   createUserIntoDB,

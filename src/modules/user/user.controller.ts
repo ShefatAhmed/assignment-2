@@ -12,10 +12,10 @@ const createUser = async (req: Request, res: Response) => {
       message: 'Users fetched successfully!',
       data: data,
     })
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({
       success: false,
-      message: 'Users fetched failed!',
+      message: err.message || 'Users fetched failed!',
       error: err,
     })
   }

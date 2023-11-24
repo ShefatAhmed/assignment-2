@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose'
-import { User } from './user/user.interface'
+import { TUser, UserModel } from './user/user.interface'
 
-const userSchema = new Schema({
+const userSchema = new Schema<TUser, UserModel>({
   userId: {
     type: String,
     required: [true, 'userId is required'],
@@ -49,4 +49,10 @@ const userSchema = new Schema({
   },
 })
 
-export const UserModel = model<User>('User', userSchema)
+
+userSchema.statics.isUserExists = async function(userId: string){
+  const existingUser = await User.findOne({userId});
+  return existingUser;
+}
+
+export const User = model<TUser, UserModel>('User', userSchema)
