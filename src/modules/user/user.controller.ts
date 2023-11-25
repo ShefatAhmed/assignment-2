@@ -13,7 +13,7 @@ const createUser = async (req: Request, res: Response) => {
       data: data,
     })
   } catch (err: any) {
-    res.status(500).json({
+    res.status(404).json({
       success: false,
       message: err.message || 'User creation failed!',
       error: err,
@@ -30,7 +30,7 @@ const getAllUsers = async (req: Request, res: Response) => {
       data: data,
     })
   } catch (err: any) {
-    res.status(500).json({
+    res.status(404).json({
       success: false,
       message: err.message || 'Users fetched failed!',
       error: err,

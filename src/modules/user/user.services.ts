@@ -6,7 +6,7 @@ const createUserIntoDB = async (userData: TUser) => {
     throw new Error('User already exists!')
   }
   const createdUser = await User.create(userData)
-  const { password, ...data } = createdUser.toObject()
+  const { password, orders , ...data } = createdUser.toObject()
   return data
 }
 
