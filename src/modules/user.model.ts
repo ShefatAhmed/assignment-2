@@ -1,5 +1,7 @@
 import { Schema, model } from 'mongoose'
 import { TUser, UserModel } from './user/user.interface'
+import bcrypt from 'bcrypt'
+import config from '../app/config'
 
 const userSchema = new Schema<TUser, UserModel>({
   userId: {
@@ -49,10 +51,47 @@ const userSchema = new Schema<TUser, UserModel>({
   },
 })
 
+// mongoose middleware
 
-userSchema.statics.isUserExists = async function(userId: string){
-  const existingUser = await User.findOne({userId});
-  return existingUser;
+userSchema.pre('save', async function (next) {
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  const user = this
+  user.password = await bcrypt.hash(
+    user.password,
+    Number(config.bcrypt_salt_rounds),
+  )
+  next()
+})
+userSchema.post('save', function (doc, next) {
+  doc.password = ''
+  next()
+})
+
+// query middleware
+
+userSchema.pre('find', function (next) {
+  this.find({ isDeleted: { $ne: true } })
+  next()
+})
+userSchema.pre('findOne', function (next) {
+  this.find({ isDeleted: { $ne: true } })
+  next()
+})
+userSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } })
+  next()
+})
+
+userSchema.statics.isUserExists = async function (userId: string) {
+  const existingUser = await User.findOne({ userId })
+  return existingUser
 }
+
+userSchema.statics.deleteUser = async function (userId: string): Promise<void> {
+  const result = await User.deleteOne({ userId });
+  if (result.deletedCount === 0) {
+    throw new Error('User not found');
+  }
+};
 
 export const User = model<TUser, UserModel>('User', userSchema)

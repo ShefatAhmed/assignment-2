@@ -23,7 +23,7 @@ const userValidationSchema = z.object({
     .refine((val) => val.length > 0, {
       message: 'At least one hobby is required',
     }),
-  address: addressValidationSchema,
+  address: addressValidationSchema
 })
 
 export default userValidationSchema
