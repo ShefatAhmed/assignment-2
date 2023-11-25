@@ -1,11 +1,11 @@
 import { Schema, model } from 'mongoose'
-import { TUser, UserModel } from './user/user.interface'
+import { TOrder, TUser, UserModel } from './user/user.interface'
 import bcrypt from 'bcrypt'
 import config from '../app/config'
 
 const userSchema = new Schema<TUser, UserModel>({
   userId: {
-    type: String,
+    type: Number,
     required: [true, 'userId is required'],
     unique: true,
   },
@@ -28,16 +28,15 @@ const userSchema = new Schema<TUser, UserModel>({
       trim: true,
     },
   },
-  age: { type: String, required: [true, 'age is required'] },
+  age: { type: Number, required: [true, 'age is required'] },
   email: {
     type: String,
     required: [true, 'email is required'],
     unique: true,
   },
   isActive: {
-    type: String,
-    enum: ['true', 'false'],
-    default: 'true',
+    type: Boolean,
+    default: true,
     required: [true, 'isActive is required'],
   },
   hobbies: {
@@ -49,6 +48,13 @@ const userSchema = new Schema<TUser, UserModel>({
     city: { type: String, required: [true, 'City is required'] },
     country: { type: String, required: [true, 'Country is required'] },
   },
+  orders: [
+    {
+      productName: String,
+      price: Number,
+      quantity: Number,
+    },
+  ],
 })
 
 // mongoose middleware
@@ -66,7 +72,6 @@ userSchema.post('save', function (doc, next) {
   doc.password = ''
   next()
 })
-
 
 userSchema.statics.isUserExists = async function (userId: string) {
   const existingUser = await User.findOne({ userId })
@@ -91,6 +96,23 @@ userSchema.statics.deleteUser = async function (userId: string): Promise<void> {
   if (result.deletedCount === 0) {
     throw new Error('User not found')
   }
+}
+
+//orders schema
+userSchema.statics.addOrder = async function (
+  userId: string,
+  orderData: TOrder,
+) {
+  const user = await this.findOne({ userId })
+
+  if (!user) {
+    throw new Error('User not found')
+  }
+  user.orders = user.orders || []
+
+  user.orders.push(orderData)
+  const updatedUser = await user.save()
+  return updatedUser
 }
 
 export const User = model<TUser, UserModel>('User', userSchema)

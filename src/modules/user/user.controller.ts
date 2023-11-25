@@ -4,22 +4,22 @@ import userValidationSchema from './user.validation'
 
 const createUser = async (req: Request, res: Response) => {
   try {
-    const { user: userData } = req.body;
-    const zodparseData = userValidationSchema.parse(userData);
-    const data = await UserServices.createUserIntoDB(zodparseData);
+    const { user: userData } = req.body
+    const zodparseData = userValidationSchema.parse(userData)
+    const data = await UserServices.createUserIntoDB(zodparseData)
     res.status(200).json({
       success: true,
       message: 'User created successfully!',
       data: data,
-    });
+    })
   } catch (err: any) {
     res.status(500).json({
       success: false,
       message: err.message || 'User creation failed!',
       error: err,
-    });
+    })
   }
-};
+}
 
 const getAllUsers = async (req: Request, res: Response) => {
   const data = await UserServices.getAllUserFromDB()
@@ -39,15 +39,15 @@ const getAllUsers = async (req: Request, res: Response) => {
 }
 
 const getSingleUser = async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const { userId } = req.params
 
   try {
-    const data = await UserServices.getSingleUserFromDB(userId);
+    const data = await UserServices.getSingleUserFromDB(userId)
     res.status(200).json({
       success: true,
       message: 'User fetched successfully!',
       data: data,
-    });
+    })
   } catch (err: any) {
     res.status(404).json({
       success: false,
@@ -56,15 +56,18 @@ const getSingleUser = async (req: Request, res: Response) => {
         code: 404,
         description: 'User not found!',
       },
-    });
+    })
   }
-};
+}
 
 const updateUser = async (req: Request, res: Response) => {
-  const { userId } = req.params;
-  const { user: updatedUserData } = req.body;
+  const { userId } = req.params
+  const { user: updatedUserData } = req.body
   try {
-    const updatedUser = await UserServices.updateUserInDB(userId, updatedUserData);
+    const updatedUser = await UserServices.updateUserInDB(
+      userId,
+      updatedUserData,
+    )
 
     if (updatedUser === null) {
       res.status(404).json({
@@ -74,7 +77,7 @@ const updateUser = async (req: Request, res: Response) => {
           code: 404,
           description: 'User not found!',
         },
-      });
+      })
     } else {
       const serializedUser = {
         userId: updatedUser.userId,
@@ -85,20 +88,20 @@ const updateUser = async (req: Request, res: Response) => {
         },
         age: updatedUser.age,
         email: updatedUser.email,
-        isActive: updatedUser.isActive === 'true', // Convert to boolean
+        isActive: updatedUser.isActive === true,
         hobbies: updatedUser.hobbies,
         address: {
           street: updatedUser.address.street,
           city: updatedUser.address.city,
           country: updatedUser.address.country,
         },
-      };
+      }
 
       res.status(200).json({
         success: true,
         message: 'User updated successfully!',
         data: serializedUser,
-      });
+      })
     }
   } catch (err: any) {
     res.status(400).json({
@@ -108,22 +111,19 @@ const updateUser = async (req: Request, res: Response) => {
         code: 404,
         description: 'User not found!',
       },
-    });
+    })
   }
-};
-
-
-
+}
 
 const deleteUser = async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const { userId } = req.params
   try {
-    await UserServices.deleteUserFromDB(userId);
+    await UserServices.deleteUserFromDB(userId)
     res.status(200).json({
       success: true,
       message: 'User deleted successfully!',
       data: null,
-    });
+    })
   } catch (err: any) {
     res.status(400).json({
       success: false,
@@ -132,14 +132,52 @@ const deleteUser = async (req: Request, res: Response) => {
         code: 404,
         description: 'User not found!',
       },
-    });
+    })
   }
-};
+}
+
+//orders
+const addOrder = async (req: Request, res: Response) => {
+  const { userId } = req.params
+  const { productName, price, quantity } = req.body
+
+  try {
+    const updatedUser = await UserServices.addOrder(userId, {
+      productName,
+      price,
+      quantity,
+    })
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+        error: {
+          code: 404,
+          description: 'User not found!',
+        },
+      })
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Order created successfully!',
+      data: null,
+    })
+  } catch (err: any) {
+    res.status(404).json({
+      success: false,
+      message: err.message || 'Failed to create order',
+      error: err,
+    })
+  }
+}
 
 export const UserController = {
   createUser,
   getAllUsers,
   getSingleUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  addOrder,
 }
