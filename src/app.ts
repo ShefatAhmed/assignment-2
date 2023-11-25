@@ -10,8 +10,10 @@ app.use(cors())
 app.use('/api/users', UserRoute)
 
 const getAController = (req: Request, res: Response) => {
-  const a = 0
-  res.send(a)
+  res.status(200).json({
+    success: true,
+    message: 'Welcome to assignment-2 server!',
+  })
 }
 
 app.get('/', getAController)

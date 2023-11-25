@@ -32,4 +32,4 @@ const userValidationSchema = z.object({
   orders: z.array(addOrderValidationSchema).optional(),
 })
 
-export default userValidationSchema;
+export default userValidationSchema

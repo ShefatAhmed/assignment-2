@@ -40,7 +40,6 @@ const getAllUsers = async (req: Request, res: Response) => {
 
 const getSingleUser = async (req: Request, res: Response) => {
   const { userId } = req.params
-
   try {
     const data = await UserServices.getSingleUserFromDB(userId)
     res.status(200).json({
@@ -68,7 +67,6 @@ const updateUser = async (req: Request, res: Response) => {
       userId,
       updatedUserData,
     )
-
     if (updatedUser === null) {
       res.status(404).json({
         success: false,
@@ -96,7 +94,6 @@ const updateUser = async (req: Request, res: Response) => {
           country: updatedUser.address.country,
         },
       }
-
       res.status(200).json({
         success: true,
         message: 'User updated successfully!',
@@ -174,15 +171,14 @@ const addOrder = async (req: Request, res: Response) => {
 }
 
 const getOrders = async (req: Request, res: Response) => {
-  const { userId } = req.params;
-
+  const { userId } = req.params
   try {
-    const orders = await UserServices.getOrdersFromDB(userId);
+    const orders = await UserServices.getOrdersFromDB(userId)
     res.status(200).json({
       success: true,
       message: 'Orders fetched successfully!',
       data: { orders },
-    });
+    })
   } catch (err: any) {
     res.status(404).json({
       success: false,
@@ -191,9 +187,32 @@ const getOrders = async (req: Request, res: Response) => {
         code: 404,
         description: 'User not found!',
       },
-    });
+    })
   }
-};
+}
+
+const getTotalPrice = async (req: Request, res: Response) => {
+  const { userId } = req.params
+
+  try {
+    const totalPriceData = await UserServices.getTotalPriceFromDB(userId)
+
+    res.status(200).json({
+      success: true,
+      message: 'Total price calculated successfully!',
+      data: totalPriceData,
+    })
+  } catch (err: any) {
+    res.status(err.code).json({
+      success: false,
+      message: err.description,
+      error: {
+        code: err.code,
+        description: err.description,
+      },
+    })
+  }
+}
 
 export const UserController = {
   createUser,
@@ -202,5 +221,6 @@ export const UserController = {
   updateUser,
   deleteUser,
   addOrder,
-  getOrders
+  getOrders,
+  getTotalPrice,
 }

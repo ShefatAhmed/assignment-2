@@ -115,12 +115,28 @@ userSchema.statics.addOrder = async function (
   return updatedUser
 }
 
-userSchema.statics.getOrders = async function (userId: string): Promise<TOrder[]> {
-  const user = await this.findOne({ userId });
+userSchema.statics.getOrders = async function (
+  userId: string,
+): Promise<TOrder[]> {
+  const user = await this.findOne({ userId })
   if (!user) {
-    throw new Error('User not found');
+    throw new Error('User not found')
   }
-  return user.orders || [];
-};
+  return user.orders || []
+}
+
+userSchema.statics.getTotalPrice = async function (
+  userId: string,
+): Promise<{ totalPrice: number }> {
+  const user = await this.findOne({ userId })
+  if (!user) {
+    throw { code: 404, description: 'User not found!' }
+  }
+  const totalPrice = (user.orders ?? []).reduce(
+    (acc, order) => acc + order.price * order.quantity,
+    0,
+  )
+  return { totalPrice }
+}
 
 export const User = model<TUser, UserModel>('User', userSchema)

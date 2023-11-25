@@ -82,9 +82,20 @@ const addOrder = async (userId: string, orderData: any) => {
 }
 
 const getOrdersFromDB = async (userId: string): Promise<TOrder[]> => {
-  const orders = await User.getOrders(userId);
-  return orders;
-};
+  const orders = await User.getOrders(userId)
+  return orders
+}
+
+const getTotalPriceFromDB = async (
+  userId: string,
+): Promise<{ totalPrice: number }> => {
+  try {
+    const totalPriceData = await User.getTotalPrice(userId)
+    return totalPriceData
+  } catch (err) {
+    throw { code: 404, description: 'User not found!' }
+  }
+}
 
 export const UserServices = {
   createUserIntoDB,
@@ -93,5 +104,6 @@ export const UserServices = {
   updateUserInDB,
   deleteUserFromDB,
   addOrder,
-  getOrdersFromDB
+  getOrdersFromDB,
+  getTotalPriceFromDB,
 }
