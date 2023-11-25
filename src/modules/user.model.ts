@@ -115,4 +115,12 @@ userSchema.statics.addOrder = async function (
   return updatedUser
 }
 
+userSchema.statics.getOrders = async function (userId: string): Promise<TOrder[]> {
+  const user = await this.findOne({ userId });
+  if (!user) {
+    throw new Error('User not found');
+  }
+  return user.orders || [];
+};
+
 export const User = model<TUser, UserModel>('User', userSchema)

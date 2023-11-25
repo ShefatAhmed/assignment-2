@@ -1,4 +1,4 @@
-import { TUser } from './user.interface'
+import { TOrder, TUser } from './user.interface'
 import { User } from '../user.model'
 
 const createUserIntoDB = async (userData: TUser) => {
@@ -75,12 +75,16 @@ const addOrder = async (userId: string, orderData: any) => {
     if (!updatedUser) {
       throw { code: 404, description: 'User not found' }
     }
-
     return updatedUser
   } catch (err) {
     throw { code: 404, description: 'Failed to create order' }
   }
 }
+
+const getOrdersFromDB = async (userId: string): Promise<TOrder[]> => {
+  const orders = await User.getOrders(userId);
+  return orders;
+};
 
 export const UserServices = {
   createUserIntoDB,
@@ -89,4 +93,5 @@ export const UserServices = {
   updateUserInDB,
   deleteUserFromDB,
   addOrder,
+  getOrdersFromDB
 }
