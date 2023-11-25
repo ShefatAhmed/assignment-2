@@ -67,8 +67,6 @@ userSchema.post('save', function (doc, next) {
   next()
 })
 
-// query middleware
-
 userSchema.pre('find', function (next) {
   this.find({ isDeleted: { $ne: true } })
   next()
@@ -87,11 +85,24 @@ userSchema.statics.isUserExists = async function (userId: string) {
   return existingUser
 }
 
-userSchema.statics.deleteUser = async function (userId: string): Promise<void> {
-  const result = await User.deleteOne({ userId });
-  if (result.deletedCount === 0) {
-    throw new Error('User not found');
+userSchema.statics.updateUser = async function (
+  userId: string,
+  updatedUserData: TUser,
+): Promise<TUser | null> {
+  const updatedUser = await User.findOneAndUpdate({ userId }, updatedUserData, {
+    new: true,
+  })
+  if (!updatedUser) {
+    throw new Error('User cannot updated!')
   }
-};
+  return updatedUser
+}
+
+userSchema.statics.deleteUser = async function (userId: string): Promise<void> {
+  const result = await User.deleteOne({ userId })
+  if (result.deletedCount === 0) {
+    throw new Error('User not found')
+  }
+}
 
 export const User = model<TUser, UserModel>('User', userSchema)

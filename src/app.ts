@@ -7,7 +7,7 @@ app.use(express.json())
 app.use(cors())
 
 // application routes
-app.use('/', UserRoute)
+app.use('/api/users', UserRoute)
 
 const getAController = (req: Request, res: Response) => {
   const a = 0
