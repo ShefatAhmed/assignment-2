@@ -45,6 +45,9 @@ const getAllUserFromDB = async () => {
 
 const getSingleUserFromDB = async (userId: string) => {
   const data = await User.findOne({ userId })
+  if (!data) {
+    throw new Error('User not found!');
+  }
   return data
 }
 

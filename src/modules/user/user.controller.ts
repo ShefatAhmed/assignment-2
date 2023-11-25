@@ -39,41 +39,81 @@ const getAllUsers = async (req: Request, res: Response) => {
 }
 
 const getSingleUser = async (req: Request, res: Response) => {
-  const { userId } = req.params
-  const data = await UserServices.getSingleUserFromDB(userId)
+  const { userId } = req.params;
+
   try {
+    const data = await UserServices.getSingleUserFromDB(userId);
     res.status(200).json({
       success: true,
-      message: 'Users fetched successfully!',
+      message: 'User fetched successfully!',
       data: data,
-    })
+    });
   } catch (err: any) {
-    res.status(500).json({
+    res.status(404).json({
       success: false,
-      message: err.message || 'Users fetched failed!',
-      error: err,
-    })
+      message: err.message || 'User not found!',
+      error: {
+        code: 404,
+        description: 'User not found!',
+      },
+    });
   }
-}
+};
 
 const updateUser = async (req: Request, res: Response) => {
   const { userId } = req.params;
   const { user: updatedUserData } = req.body;
   try {
     const updatedUser = await UserServices.updateUserInDB(userId, updatedUserData);
-    res.status(200).json({
-      success: true,
-      message: 'User updated successfully!',
-      data: updatedUser,
-    });
+
+    if (updatedUser === null) {
+      res.status(404).json({
+        success: false,
+        message: 'User not found!',
+        error: {
+          code: 404,
+          description: 'User not found!',
+        },
+      });
+    } else {
+      const serializedUser = {
+        userId: updatedUser.userId,
+        username: updatedUser.username,
+        fullName: {
+          firstName: updatedUser.fullName.firstName,
+          lastName: updatedUser.fullName.lastName,
+        },
+        age: updatedUser.age,
+        email: updatedUser.email,
+        isActive: updatedUser.isActive === 'true', // Convert to boolean
+        hobbies: updatedUser.hobbies,
+        address: {
+          street: updatedUser.address.street,
+          city: updatedUser.address.city,
+          country: updatedUser.address.country,
+        },
+      };
+
+      res.status(200).json({
+        success: true,
+        message: 'User updated successfully!',
+        data: serializedUser,
+      });
+    }
   } catch (err: any) {
-    res.status(500).json({
+    res.status(400).json({
       success: false,
-      message: err.message || 'Failed to update user!',
-      error: err,
+      message: err.message || 'User not found!',
+      error: {
+        code: 404,
+        description: 'User not found!',
+      },
     });
   }
 };
+
+
+
 
 const deleteUser = async (req: Request, res: Response) => {
   const { userId } = req.params;
@@ -85,10 +125,13 @@ const deleteUser = async (req: Request, res: Response) => {
       data: null,
     });
   } catch (err: any) {
-    res.status(500).json({
+    res.status(400).json({
       success: false,
-      message: err.message || 'Failed to delete user!',
-      error: err,
+      message: err.message || 'User not found!',
+      error: {
+        code: 404,
+        description: 'User not found!',
+      },
     });
   }
 };

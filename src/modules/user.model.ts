@@ -67,18 +67,6 @@ userSchema.post('save', function (doc, next) {
   next()
 })
 
-userSchema.pre('find', function (next) {
-  this.find({ isDeleted: { $ne: true } })
-  next()
-})
-userSchema.pre('findOne', function (next) {
-  this.find({ isDeleted: { $ne: true } })
-  next()
-})
-userSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } })
-  next()
-})
 
 userSchema.statics.isUserExists = async function (userId: string) {
   const existingUser = await User.findOne({ userId })
